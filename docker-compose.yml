@@ -17,5 +17,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    environment:
+      - DB_URL=${DB_URL}
     links:
       - reto_tecnico
