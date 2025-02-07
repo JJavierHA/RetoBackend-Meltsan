@@ -19,12 +19,3 @@ class Book(Base):
     published = Column(Integer)
     genre = Column(Integer, ForeignKey("genres.id"))
     stock = Column(Integer)
-
-
-class User(Base):
-    __tablename__ = "users"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_name = Column(String(50), unique=True)
-    hashed_password = Column(String(100))
-    email = Column(String(50), unique=True)

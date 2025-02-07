@@ -15,7 +15,7 @@ from ..services.catalog_services import (
 )
 
 router = APIRouter(
-    prefix="/api/catalogs",
+    prefix="/api/catalogs/genre",
     tags=["catalogs"]
 )
 

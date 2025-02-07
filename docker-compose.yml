@@ -1,0 +1,21 @@
+services:
+  reto_tecnico:
+    image: postgres
+    ports:
+      - "${PORT}:5432"
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD_DB}
+      - POSTGRES_DB=${POSTGRES_NAME_DB}
+    volumes:
+      - /var/lib/postgresql/data # el volumen se almacena dentro del ciclo de vida del contenedor
+
+  book_service:
+    depends_on:
+      - reto_tecnico
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    links:
+      - reto_tecnico
