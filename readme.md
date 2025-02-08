@@ -136,3 +136,5 @@ Para ver la documentacion de la API ingresa a la siguiente direccion:
 
 ## Elaborado por ️
 **Javier Herrera** - *Trabajo Inicial* - [JJavierHA](https://github.com/JJavierHA)
+
+Puedes descargar o ver la imagen del proyecto sin base de datos en mi repositorio de Docker Hub - [jjavierha](https://hub.docker.com/r/jjavierha/reto-backend)
