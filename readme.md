@@ -37,10 +37,10 @@ Clona este repositorio en tu equipo local con ayuda de git.
 Efectua el siguiente comando en tu terminar en el directorio donde desees que se almacene el proyecto
 **Por SSH o si lo prefires por HTTPS**
 ``` bash
-git clone git@github.com:JJavierHA/APIForo.git
+git clone git@github.com:JJavierHA/RetoBackend-Meltsan.git
 ```
 ``` bash
-git clone https://github.com/JJavierHA/APIForo.git
+git clone https://github.com/JJavierHA/RetoBackend-Meltsan.git
 ```
 
 >[!NOTE]
@@ -136,3 +136,5 @@ Para ver la documentacion de la API ingresa a la siguiente direccion:
 
 ## Elaborado por ️
 **Javier Herrera** - *Trabajo Inicial* - [JJavierHA](https://github.com/JJavierHA)
+
+Puedes descargar o ver la imagen del proyecto sin base de datos en mi repositorio de Docker Hub - [jjavierha](https://hub.docker.com/r/jjavierha/reto-backend)
