@@ -20,7 +20,15 @@ from .exceptions.books_exceptions import (
     IsbnAlreadyExistException,
 )
 
-app = FastAPI()
+app = FastAPI(
+    title="Reto Backend",
+    description="Micro servicio para la gestion de libros de una biblioteca",
+    contact={
+        "name": "Jose Javier Herrera Arguello",
+        "email": "jose.herrera@meltsan.com",
+        "url": "https://github.com/JJavierHA",
+    },
+)
 
 # add pagination
 add_pagination(app)
