@@ -6,7 +6,11 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy import or_
 from ..schemas import BookRequest
 from ..models import Book
-
+from ..exceptions.catalogs_exceptions import GenreNotFoundException 
+from ..exceptions.books_exceptions import (
+    BookNotFoundException,
+    IsbnAlreadyExistException
+)
 
 def get_all_books(db: Session):
     books = db.query(Book)
@@ -16,31 +20,23 @@ def get_all_books(db: Session):
 def get_book_by_id(db: Session, id: int):
     book = db.query(Book).filter(Book.id == id).first()
     if book is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Book not found."
-        )
+        raise BookNotFoundException
     return book
 
 
 def get_book_by_author_or_title(db: Session, query: str):
     book = db.query(Book).filter(or_(Book.title.ilike(f"%{query}%"), 
                                      Book.author.ilike(f"%{query}%")))
-    if not book:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Books not found."
-        )
+    if not book.first():
+        raise BookNotFoundException
     return paginate(book)
 
 
 def create_book(db: Session, bookReques: BookRequest):
-    book = db.query(Book).filter(Book.ISBN == bookReques.ISBN.upper().strip()).first()
+    book = db.query(Book).filter(Book.ISBN == bookReques.ISBN.upper()
+                                 .strip()).first()
     if book is not None:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="ISBN already exist."
-        )
+        raise IsbnAlreadyExistException
     try:
         book = Book(
             title = bookReques.title.title().strip(),
@@ -55,19 +51,13 @@ def create_book(db: Session, bookReques: BookRequest):
         return book
     except IntegrityError:
         db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Genre not exist."
-        )
+        raise GenreNotFoundException
         
 
 def update_book(db: Session, bookRequest: BookRequest, id: int):
     book = db.query(Book).filter(Book.id == id).first()
     if book is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="Book not found."
-        )
+        raise BookNotFoundException
     try:
         book.title = bookRequest.title.title().strip()
         book.author = bookRequest.author.title().strip()
@@ -80,17 +70,11 @@ def update_book(db: Session, bookRequest: BookRequest, id: int):
         return book
     except IntegrityError:
         db.rollback() # discard change
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, 
-            detail="ISBN already exist."
-        )
+        raise IsbnAlreadyExistException
     
 
 def delete_book(db: Session, id: int):
     if db.query(Book).filter(Book.id == id).first() is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Book not found."
-        )
+        raise BookNotFoundException
     db.query(Book).filter(Book.id == id).delete()
     db.commit()

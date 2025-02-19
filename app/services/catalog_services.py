@@ -2,9 +2,12 @@ from ..models import Genre
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError 
 from ..schemas import GenreRequest
-from fastapi import HTTPException
 from fastapi_pagination.ext.sqlalchemy import paginate
-from starlette import status
+from ..exceptions.catalogs_exceptions import (
+    GenreNotFoundException, 
+    GenreAlreadyExistException, 
+    EmptyFieldsException
+)
 
 
 def get_all_genres(db: Session):
@@ -12,12 +15,9 @@ def get_all_genres(db: Session):
     return paginate(genres)
 
 def get_genre_by_description(db: Session, description: str):
-    genre =  db.query(Genre).filter(Genre.description == description).first()
+    genre =  db.query(Genre).filter(Genre.description == description.capitalize()).first()
     if genre is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="Genre not found."
-        )
+        raise GenreNotFoundException #exception
     return genre
 
 
@@ -25,10 +25,7 @@ def create_genre(db: Session, genreRequest: GenreRequest):
     # genre = db.query(Genre).filter(Genre.description == genreRequest.description.
     #                                title().strip()).first()
     if genreRequest.description.strip() == "":
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="The field can not be empty."
-        )
+        raise EmptyFieldsException("Field empty.")
     try:
         genre = Genre(description = genreRequest.description.
                       capitalize().strip())
@@ -37,38 +34,26 @@ def create_genre(db: Session, genreRequest: GenreRequest):
         return genre
     except IntegrityError:
         db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Genre already exist."
-        )
+        raise GenreAlreadyExistException
 
 
 def update_genre(db: Session, genreRequest: GenreRequest, id: int):
     genre = db.query(Genre).filter(Genre.id == id).first()
     if genre is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Genre not found."
-        )
+        raise GenreNotFoundException
     try:
         genre.description = genreRequest.description.capitalize().strip()
         db.add(genre)
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Genre already exist."
-        )
+        raise GenreAlreadyExistException
 
 
 def delete_genre(db: Session, id: int):
     genre = db.query(Genre).filter(Genre.id == id).first()
     if genre is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Genre not found."
-        )
+        raise GenreNotFoundException
     db.query(Genre).filter(Genre.id == id).delete()
     db.commit()
     
